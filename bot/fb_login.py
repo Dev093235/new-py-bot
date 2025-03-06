@@ -1,51 +1,55 @@
+import time
 import json
-import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
-def load_cookies(file_path="data/cookies.json"):
-    """Load cookies from JSON file and validate format."""
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            cookies = json.load(f)
+# 🔑 Facebook Credentials (Yeh GitHub Secrets ya `.env` file me store karo)
+EMAIL = "your_email_here"
+PASSWORD = "your_password_here"
 
-        if not isinstance(cookies, dict) or "c_user" not in cookies or "xs" not in cookies:
-            print("❌ Error: Cookies.json ka format galat hai! Ensure it has c_user & xs.")
-            return None
+def login_facebook():
+    """Email aur Password se Facebook Login"""
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")  # 🖥 Background Mode (Optional)
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
 
-        return cookies
-    except Exception as e:
-        print(f"❌ Error: Cookies load nahi ho rahi! ({e})")
-        return None
+    # ✅ Chrome Driver Setup
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.get("https://www.facebook.com")
 
-def check_facebook_login():
-    """Check Facebook login using cookies and return session."""
-    cookies = load_cookies()
-    if not cookies:
-        return None
+    # 🟢 Email Input
+    email_input = driver.find_element(By.ID, "email")
+    email_input.send_keys(EMAIL)
 
-    session = requests.Session()
-    
-    # ✅ **Facebook cookies ko set karo (Safe Method)**
-    session.cookies.set("c_user", cookies["c_user"], domain=".facebook.com", path="/")
-    session.cookies.set("xs", cookies["xs"], domain=".facebook.com", path="/")
+    # 🔵 Password Input
+    password_input = driver.find_element(By.ID, "pass")
+    password_input.send_keys(PASSWORD)
+    password_input.send_keys(Keys.RETURN)
 
-    # ✅ **Fake Headers for Safe Login**
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://www.facebook.com/",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1"
-    }
+    time.sleep(5)  # ⏳ Wait for Login
 
-    response = session.get("https://www.facebook.com/", headers=headers, allow_redirects=True)
+    # ✅ **Login Success Check**
+    if "home_icon" in driver.page_source or "profile.php" in driver.current_url:
+        print("🎉 Successfully Logged into Facebook!")
 
-    if "home_icon" in response.text or "profile.php" in response.url:
-        print("🎉 Successfully logged in to Facebook!")
-        return session
+        # ✅ **Cookies Save Karo**
+        cookies = driver.get_cookies()
+        with open("data/cookies.json", "w") as file:
+            json.dump(cookies, file)
+
+        print("✅ Cookies Saved Successfully!")
+        driver.quit()
+        return True
     else:
-        print("❌ Login failed! Cookies expire ho sakti hain ya Facebook block kar raha hai.")
-        return None
+        print("❌ Login Failed! Invalid Credentials or Security Check Required.")
+        driver.quit()
+        return False
 
+# 🏁 **Run Login**
 if __name__ == "__main__":
-    check_facebook_login()
+    login_facebook()
