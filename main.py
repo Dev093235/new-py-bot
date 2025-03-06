@@ -1,29 +1,41 @@
 import json
-import bot.fb_login
-import time
 import requests
-import psutil
 
-def check_internet():
-    """Check if internet is working"""
+def load_cookies(file_path="data/cookies.json"):
+    """Load cookies from JSON file."""
     try:
-        requests.get("https://www.google.com", timeout=5)
-        return True
-    except requests.ConnectionError:
-        return False
-
-def check_memory_usage():
-    """Check if bot is consuming too much memory"""
-    memory = psutil.virtual_memory()
-    print(f"💾 Memory Usage: {memory.percent}%")
-    if memory.percent > 80:
-        print("⚠️ Warning: High Memory Usage!")
-
-def check_facebook_login():
-    """Cookies se login check karo, agar fail ho to email/password se login karo"""
-    try:
-        with open("data/cookies.json", "r") as file:
-            cookies = json.load(file)
+        with open(file_path, "r", encoding="utf-8") as f:
+            cookies = json.load(f)
 
         if not cookies:
-            raise Exception("Cookies file empty
+            raise Exception("Cookies file empty! Please add valid Facebook cookies.")
+
+        return cookies
+    except Exception as e:
+        print(f"❌ Error: Cookies load nahi ho rahi! ({e})")
+        return None
+
+def check_facebook_login():
+    """Check Facebook login using cookies."""
+    cookies = load_cookies()
+    if not cookies:
+        return False
+
+    session = requests.Session()
+    session.cookies.update(cookies)
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+    }
+
+    response = session.get("https://www.facebook.com", headers=headers, allow_redirects=True)
+
+    if "home_icon" in response.text or "profile.php" in response.url:
+        print("🎉 Successfully logged in to Facebook!")
+        return True
+    else:
+        print("❌ Login failed! Cookies expire ho sakti hain.")
+        return False
+
+if __name__ == "__main__":
+    check_facebook_login()
