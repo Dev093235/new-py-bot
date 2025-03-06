@@ -15,3 +15,15 @@ def auto_reply(message, sender_name):
     time.sleep(random.uniform(1, 3))
     
     return reply
+
+def check_messages(messages):
+    """
+    Checks new messages and generates auto-replies.
+    messages: List of (message, sender_name) tuples.
+    """
+    replies = []
+    for message, sender_name in messages:
+        reply = auto_reply(message, sender_name)
+        replies.append((sender_name, reply))
+    
+    return replies
