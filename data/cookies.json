@@ -1,16 +1,4 @@
-[
-    {
-        "key": "c_user",
-        "value": "100094261704542",
-        "domain": ".facebook.com",
-        "path": "/",
-        "secure": false
-    },
-    {
-        "key": "xs",
-        "value": "35%3AXYZABCD",
-        "domain": ".facebook.com",
-        "path": "/",
-        "secure": false
-    }
-]
+{
+    "c_user": "100094261704542",
+    "xs": "15%3A4G-yrGoYVZnHgg%3A2%3A1741172297%3A-1%3A5903"
+}
