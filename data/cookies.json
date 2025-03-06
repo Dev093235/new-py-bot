@@ -4,20 +4,13 @@
         "value": "100094261704542",
         "domain": ".facebook.com",
         "path": "/",
-        "hostOnly": false
+        "secure": false
     },
     {
         "key": "xs",
-        "value": "15%3A4G-yrGoYVZnHgg%3A2%3A1741172297%3A-1%3A5903",
+        "value": "35%3AXYZABCD",
         "domain": ".facebook.com",
         "path": "/",
-        "hostOnly": false
-    },
-    {
-        "key": "fr",
-        "value": "1oMavglTZww0i2m8t.AWVTjOzzS8GQLzniG7h81fCmHxQrvgFqtYJ_UA.BnyaHp..AAA.0.0.BnyaHp.AWXy8XEi9vE",
-        "domain": ".facebook.com",
-        "path": "/",
-        "hostOnly": false
+        "secure": false
     }
 ]
