@@ -2,10 +2,16 @@ import json
 import requests
 
 def load_cookies(file_path="data/cookies.json"):
-    """Load cookies from JSON file."""
+    """Load cookies from JSON file and validate format."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
-            return json.load(f)  # Ensure it's a dictionary, not a list!
+            cookies = json.load(f)
+
+        if not isinstance(cookies, dict) or "c_user" not in cookies or "xs" not in cookies:
+            print("❌ Error: Cookies.json ka format galat hai! Ensure it has c_user & xs.")
+            return None
+
+        return cookies
     except Exception as e:
         print(f"❌ Error: Cookies load nahi ho rahi! ({e})")
         return None
@@ -13,8 +19,7 @@ def load_cookies(file_path="data/cookies.json"):
 def check_facebook_login():
     """Check Facebook login using cookies and return session."""
     cookies = load_cookies()
-    if not cookies or "c_user" not in cookies or "xs" not in cookies:
-        print("❌ Error: Cookies.json me c_user ya xs missing hai!")
+    if not cookies:
         return None
 
     session = requests.Session()
@@ -23,7 +28,7 @@ def check_facebook_login():
     session.cookies.set("c_user", cookies["c_user"], domain=".facebook.com", path="/")
     session.cookies.set("xs", cookies["xs"], domain=".facebook.com", path="/")
 
-    # ✅ **Facebook ko real user lagna chahiye (Fake Headers)**
+    # ✅ **Fake Headers for Safe Login**
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
         "Accept-Language": "en-US,en;q=0.9",
