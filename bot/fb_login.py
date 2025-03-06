@@ -16,11 +16,16 @@ def check_facebook_login():
     cookies = load_cookies()
     if not cookies:
         return False
-    
+
     session = requests.Session()
     session.cookies.update(cookies)
 
-    response = session.get("https://www.facebook.com", allow_redirects=True)
+    # ✅ **Force Chrome User-Agent**
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+    }
+
+    response = session.get("https://www.facebook.com", headers=headers, allow_redirects=True)
 
     if "home_icon" in response.text or "profile.php" in response.url:
         print("🎉 Successfully logged in to Facebook!")
