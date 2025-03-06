@@ -25,8 +25,16 @@ def check_memory_usage():
 if __name__ == "__main__":
     print("🔥 Mohit Bot Starting...")
 
+    start_time = time.time()  # Bot Start Time
+    timeout = 300  # 5 minutes ka timeout (300 seconds)
+
     while True:
         try:
+            # **Check Timeout**
+            if time.time() - start_time > timeout:
+                print("⏳ Timeout Reached! Exiting...")
+                break  # **Bot ko exit karne ke liye yeh zaroori hai**
+
             # **Check Internet Connection**
             if not check_internet():
                 print("❌ Internet Disconnected! Retrying in 10 seconds...")
@@ -53,6 +61,11 @@ if __name__ == "__main__":
 
                     check_memory_usage()  # **Memory Check**
                     time.sleep(5)
+
+                    # **Timeout Check**
+                    if time.time() - start_time > timeout:
+                        print("⏳ Timeout Reached! Exiting Inner Loop...")
+                        break  # **Inner Loop Exit**
 
                 except Exception as e:
                     print(f"⚠️ Error in Bot Loop: {e}")
