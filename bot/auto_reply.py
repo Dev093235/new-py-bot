@@ -18,8 +18,18 @@ def check_facebook_login():
         return None
     
     session = requests.Session()
-    for cookie in cookies:
-        session.cookies.set(cookie["key"], cookie["value"], domain=cookie["domain"])
+    
+    # ✅ **Fix: Properly set cookies in session**
+    try:
+        for cookie in cookies:
+            if "key" in cookie and "value" in cookie:
+                session.cookies.set(cookie["key"], cookie["value"], domain=cookie.get("domain", ".facebook.com"))
+            else:
+                print(f"⚠️ Invalid cookie format: {cookie}")
+    
+    except Exception as e:
+        print(f"❌ Error while setting cookies: {e}")
+        return None
 
     response = session.get("https://www.facebook.com", allow_redirects=True)
 
