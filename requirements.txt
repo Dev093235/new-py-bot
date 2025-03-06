@@ -1,7 +1,6 @@
 selenium
+webdriver-manager
 requests
 beautifulsoup4
 pyttsx3
 numpy
-pillow
-psutil
