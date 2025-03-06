@@ -1,1 +1,17 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
 
+# Virtual environment
+venv/
+env/
+
+# Logs
+logs/
+*.log
+
+# Credentials
+cookies.json
+config.json
