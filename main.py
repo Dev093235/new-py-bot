@@ -1,4 +1,4 @@
-import bot.fb_login
+from bot.fb_login import check_facebook_login
 import bot.auto_reply
 import bot.meme_sender
 import bot.name_detect
