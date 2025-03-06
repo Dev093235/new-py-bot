@@ -11,11 +11,11 @@ def load_cookies(file_path="data/cookies.json"):
         print(f"❌ Error: Cookies load nahi ho rahi! ({e})")
         return None
 
-def check_facebook_login():
-    """Check if Facebook login is successful using cookies."""
+def login():
+    """Check Facebook login using cookies and return session."""
     cookies = load_cookies()
     if not cookies:
-        return False
+        return None
     
     session = requests.Session()
     session.cookies.update(cookies)
@@ -24,10 +24,10 @@ def check_facebook_login():
 
     if "home_icon" in response.text or "profile.php" in response.url:
         print("🎉 Successfully logged in to Facebook!")
-        return True
+        return session
     else:
         print("❌ Login failed! Cookies expire ho sakti hain.")
-        return False
+        return None
 
 if __name__ == "__main__":
-    check_facebook_login()
+    login()
