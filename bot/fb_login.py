@@ -7,8 +7,8 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 
 # 🔑 Facebook Credentials (Yeh GitHub Secrets ya `.env` file me store karo)
-EMAIL = "your_email_here"
-PASSWORD = "your_password_here"
+EMAIL = "100094261704542"
+PASSWORD = "vashu@0123"
 
 def login_facebook():
     """Email aur Password se Facebook Login"""
