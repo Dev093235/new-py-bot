@@ -19,58 +19,59 @@ def check_memory_usage():
     """Check if bot is consuming too much memory"""
     memory = psutil.virtual_memory()
     print(f"💾 Memory Usage: {memory.percent}%")
-    if memory.percent > 80:  # Agar 80% se zyada memory ho gayi to warning do
+    if memory.percent > 80:
         print("⚠️ Warning: High Memory Usage!")
 
 if __name__ == "__main__":
     print("🔥 Mohit Bot Starting...")
 
-    start_time = time.time()  # Bot Start Time
-    timeout = 300  # 5 minutes ka timeout (300 seconds)
+    start_time = time.time()  
+    timeout = 300  # 5 minutes timeout
 
+    # **Check Internet Connection**
+    if not check_internet():
+        print("❌ Internet Disconnected! Exiting...")
+        exit(1)
+
+    # **Facebook Login Check**
+    session = check_facebook_login()  
+    if not session:
+        print("❌ Login Failed! Cookies might be expired.")
+        exit(1)
+
+    print("✅ Login Successful!")
+
+    # **Bot Loop**
     while True:
         try:
-            # **Check Timeout**
+            # **Fetch New Messages**
+            messages = bot.auto_reply.check_messages(session)
+            for msg in messages:
+                try:
+                    if isinstance(msg, tuple) and len(msg) == 2:
+                        user_id, message_text = msg
+                        print(f"📩 Message from {user_id}: {message_text}")
+
+                        # **Bot Replies**
+                        bot.auto_reply.send_reply(session, user_id, message_text)
+                        bot.meme_sender.send_meme(session, user_id)
+                        bot.name_detect.detect_name(session, user_id, message_text)
+                        bot.voice_reply.voice_response(session, user_id, message_text)
+
+                        check_memory_usage()
+                        time.sleep(3)  # Delay between responses
+                    else:
+                        print(f"⚠️ Unexpected message format: {msg}")
+                except Exception as e:
+                    print(f"⚠️ Error handling message: {e}")
+
+            # **Timeout Check**
             if time.time() - start_time > timeout:
                 print("⏳ Timeout Reached! Exiting...")
-                break  # **Bot ko exit karne ke liye yeh zaroori hai**
+                break
 
-            # **Check Internet Connection**
-            if not check_internet():
-                print("❌ Internet Disconnected! Retrying in 10 seconds...")
-                time.sleep(10)
-                continue
-
-            # **Facebook Login Check**
-            if not bot.fb_login.check_facebook_login():
-                print("❌ Login Failed! Cookies Expire Ho Sakti Hain.")
-                time.sleep(30)
-                continue
-            else:
-                print("✅ Login Successful!")
-
-            # **Bot Loop**
-            while True:
-                try:
-                    messages = [("Hello bot!", "Rahul"), ("Kya haal hai?", "Pooja")]
-
-                    bot.auto_reply.check_messages(messages)
-                    bot.meme_sender.send_meme()
-                    bot.name_detect.detect_name()
-                    bot.voice_reply.voice_response()
-
-                    check_memory_usage()  # **Memory Check**
-                    time.sleep(5)
-
-                    # **Timeout Check**
-                    if time.time() - start_time > timeout:
-                        print("⏳ Timeout Reached! Exiting Inner Loop...")
-                        break  # **Inner Loop Exit**
-
-                except Exception as e:
-                    print(f"⚠️ Error in Bot Loop: {e}")
-                    time.sleep(5)  # Error ke baad retry karo
+            time.sleep(5)  # **Main loop delay**
 
         except Exception as e:
             print(f"⚠️ Fatal Error: {e}")
-            time.sleep(10)  # Fatal error ke baad 10 sec me restart karo
+            time.sleep(10)  # **Retry after 10 seconds**
