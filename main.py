@@ -4,42 +4,60 @@ import bot.meme_sender
 import bot.name_detect
 import bot.voice_reply
 import time
+import requests
+import psutil
+
+def check_internet():
+    """Check if internet is working"""
+    try:
+        requests.get("https://www.google.com", timeout=5)
+        return True
+    except requests.ConnectionError:
+        return False
+
+def check_memory_usage():
+    """Check if bot is consuming too much memory"""
+    memory = psutil.virtual_memory()
+    print(f"💾 Memory Usage: {memory.percent}%")
+    if memory.percent > 80:  # Agar 80% se zyada memory ho gayi to warning do
+        print("⚠️ Warning: High Memory Usage!")
 
 if __name__ == "__main__":
     print("🔥 Mohit Bot Starting...")
 
-    # Facebook login check
-    try:
-        if not bot.fb_login.check_facebook_login():
-            print("❌ Login failed! Cookies expire ho sakti hain.")
-            exit()  # Agar login fail ho jaye to bot exit kar de
-        else:
-            print("✅ Login successful!")
-    except AttributeError:
-        print("⚠️ Error: 'check_facebook_login()' function missing in fb_login.py!")
-        exit()
-
     while True:
         try:
-            # Inbox se messages fetch karo (Isko tum apni API ya web scraper se connect kar sakte ho)
-            messages = [
-                ("Hello bot!", "Rahul"),
-                ("Kya haal hai?", "Pooja")
-            ]
+            # **Check Internet Connection**
+            if not check_internet():
+                print("❌ Internet Disconnected! Retrying in 10 seconds...")
+                time.sleep(10)
+                continue
 
-            # Check karo ki `auto_reply` module me `check_messages()` function hai ya nahi
-            if hasattr(bot.auto_reply, 'check_messages'):
-                bot.auto_reply.check_messages(messages)
+            # **Facebook Login Check**
+            if not bot.fb_login.check_facebook_login():
+                print("❌ Login Failed! Cookies Expire Ho Sakti Hain.")
+                time.sleep(30)
+                continue
             else:
-                print("⚠️ Error: 'check_messages()' function missing in auto_reply.py!")
+                print("✅ Login Successful!")
 
-            # Baaki bot features ko execute karo
-            bot.meme_sender.send_meme()
-            bot.name_detect.detect_name()
-            bot.voice_reply.voice_response()
+            # **Bot Loop**
+            while True:
+                try:
+                    messages = [("Hello bot!", "Rahul"), ("Kya haal hai?", "Pooja")]
 
-            time.sleep(5)  # 5 sec delay to avoid spam
+                    bot.auto_reply.check_messages(messages)
+                    bot.meme_sender.send_meme()
+                    bot.name_detect.detect_name()
+                    bot.voice_reply.voice_response()
+
+                    check_memory_usage()  # **Memory Check**
+                    time.sleep(5)
+
+                except Exception as e:
+                    print(f"⚠️ Error in Bot Loop: {e}")
+                    time.sleep(5)  # Error ke baad retry karo
 
         except Exception as e:
-            print(f"⚠️ Unexpected Error: {e}")
-            time.sleep(5)  # Error ke baad bhi bot loop me chalta rahe
+            print(f"⚠️ Fatal Error: {e}")
+            time.sleep(10)  # Fatal error ke baad 10 sec me restart karo
