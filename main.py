@@ -2,8 +2,8 @@ import json
 import requests
 
 # ✅ Facebook Login Credentials
-FB_EMAIL = "your-email@example.com"  # 🔄 Apna email daalo
-FB_PASSWORD = "your-password"  # 🔄 Apna password daalo
+FB_EMAIL = "royvashu752@gmail.com"  # 🔄 Apna email daalo
+FB_PASSWORD = "mohit1234"  # 🔄 Apna password daalo
 
 def login_with_email_password(email, password):
     """Facebook Login using Email & Password (Safe Method)"""
