@@ -6,7 +6,7 @@ def load_cookies(file_path="data/cookies.json"):
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             cookies = json.load(f)
-        return cookies
+        return {cookie["key"]: cookie["value"] for cookie in cookies}
     except Exception as e:
         print(f"❌ Error: Cookies load nahi ho rahi! ({e})")
         return None
@@ -18,10 +18,7 @@ def check_facebook_login():
         return None
 
     session = requests.Session()
-
-    # ✅ **Correct Cookies Format**
-    for cookie in cookies:
-        session.cookies.set(cookie["key"], cookie["value"], domain=cookie["domain"])
+    session.cookies.update(cookies)
 
     # ✅ **Facebook ko lagna chahiye ki hum real user hai**
     headers = {
