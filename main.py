@@ -1,49 +1,29 @@
 import json
+import bot.fb_login
+import time
 import requests
+import psutil
 
-def load_cookies(file_path="data/cookies.json"):
-    """Load cookies from JSON file."""
+def check_internet():
+    """Check if internet is working"""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            cookies = json.load(f)
-        return cookies
-    except Exception as e:
-        print(f"❌ Error: Cookies load nahi ho rahi! ({e})")
-        return None
+        requests.get("https://www.google.com", timeout=5)
+        return True
+    except requests.ConnectionError:
+        return False
+
+def check_memory_usage():
+    """Check if bot is consuming too much memory"""
+    memory = psutil.virtual_memory()
+    print(f"💾 Memory Usage: {memory.percent}%")
+    if memory.percent > 80:
+        print("⚠️ Warning: High Memory Usage!")
 
 def check_facebook_login():
-    """Check if Facebook login is successful using cookies."""
-    cookies = load_cookies()
-    if not cookies:
-        return False
-
-    session = requests.Session()
-
-    # ✅ **Fix: Properly add cookies**
+    """Cookies se login check karo, agar fail ho to email/password se login karo"""
     try:
-        for cookie in cookies:
-            if "key" in cookie and "value" in cookie:
-                session.cookies.set(cookie["key"], cookie["value"], domain=cookie.get("domain", ".facebook.com"))
-            else:
-                print(f"⚠️ Invalid cookie format: {cookie}")
-    
-    except Exception as e:
-        print(f"❌ Error while setting cookies: {e}")
-        return False
+        with open("data/cookies.json", "r") as file:
+            cookies = json.load(file)
 
-    # ✅ **Force Chrome User-Agent**
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
-    }
-
-    response = session.get("https://www.facebook.com", headers=headers, allow_redirects=True)
-
-    if "home_icon" in response.text or "profile.php" in response.url:
-        print("🎉 Successfully logged in to Facebook!")
-        return True
-    else:
-        print("❌ Login failed! Cookies expire ho sakti hain.")
-        return False
-
-if __name__ == "__main__":
-    check_facebook_login()
+        if not cookies:
+            raise Exception("Cookies file empty
