@@ -1,41 +1,35 @@
 import json
 import requests
 
-def load_cookies(file_path="data/cookies.json"):
-    """Load cookies from JSON file."""
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            cookies = json.load(f)
+# ✅ Facebook Login Credentials
+FB_EMAIL = "your-email@example.com"  # 🔄 Apna email daalo
+FB_PASSWORD = "your-password"  # 🔄 Apna password daalo
 
-        if not cookies:
-            raise Exception("Cookies file empty! Please add valid Facebook cookies.")
-
-        return cookies
-    except Exception as e:
-        print(f"❌ Error: Cookies load nahi ho rahi! ({e})")
-        return None
-
-def check_facebook_login():
-    """Check Facebook login using cookies."""
-    cookies = load_cookies()
-    if not cookies:
-        return False
-
+def login_with_email_password(email, password):
+    """Facebook Login using Email & Password (Safe Method)"""
     session = requests.Session()
-    session.cookies.update(cookies)
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
     }
 
-    response = session.get("https://www.facebook.com", headers=headers, allow_redirects=True)
+    login_url = "https://www.facebook.com/login.php"
+    data = {
+        "email": email,
+        "pass": password
+    }
 
+    response = session.post(login_url, data=data, headers=headers)
+
+    # ✅ Check Login Success
     if "home_icon" in response.text or "profile.php" in response.url:
         print("🎉 Successfully logged in to Facebook!")
-        return True
+        return session
     else:
-        print("❌ Login failed! Cookies expire ho sakti hain.")
-        return False
+        print("❌ Login failed! Check Email/Password or CAPTCHA Verification.")
+        return None
 
 if __name__ == "__main__":
-    check_facebook_login()
+    session = login_with_email_password(FB_EMAIL, FB_PASSWORD)
+    if session:
+        print("✅ Session Ready! Now you can automate tasks.")
