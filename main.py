@@ -1,77 +1,49 @@
-from bot.fb_login import check_facebook_login
-import bot.auto_reply
-import bot.meme_sender
-import bot.name_detect
-import bot.voice_reply
-import time
+import json
 import requests
-import psutil
 
-def check_internet():
-    """Check if internet is working"""
+def load_cookies(file_path="data/cookies.json"):
+    """Load cookies from JSON file."""
     try:
-        requests.get("https://www.google.com", timeout=5)
-        return True
-    except requests.ConnectionError:
+        with open(file_path, "r", encoding="utf-8") as f:
+            cookies = json.load(f)
+        return cookies
+    except Exception as e:
+        print(f"❌ Error: Cookies load nahi ho rahi! ({e})")
+        return None
+
+def check_facebook_login():
+    """Check if Facebook login is successful using cookies."""
+    cookies = load_cookies()
+    if not cookies:
         return False
 
-def check_memory_usage():
-    """Check if bot is consuming too much memory"""
-    memory = psutil.virtual_memory()
-    print(f"💾 Memory Usage: {memory.percent}%")
-    if memory.percent > 80:
-        print("⚠️ Warning: High Memory Usage!")
+    session = requests.Session()
+
+    # ✅ **Fix: Properly add cookies**
+    try:
+        for cookie in cookies:
+            if "key" in cookie and "value" in cookie:
+                session.cookies.set(cookie["key"], cookie["value"], domain=cookie.get("domain", ".facebook.com"))
+            else:
+                print(f"⚠️ Invalid cookie format: {cookie}")
+    
+    except Exception as e:
+        print(f"❌ Error while setting cookies: {e}")
+        return False
+
+    # ✅ **Force Chrome User-Agent**
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
+    }
+
+    response = session.get("https://www.facebook.com", headers=headers, allow_redirects=True)
+
+    if "home_icon" in response.text or "profile.php" in response.url:
+        print("🎉 Successfully logged in to Facebook!")
+        return True
+    else:
+        print("❌ Login failed! Cookies expire ho sakti hain.")
+        return False
 
 if __name__ == "__main__":
-    print("🔥 Mohit Bot Starting...")
-
-    start_time = time.time()  
-    timeout = 300  # 5 minutes timeout
-
-    # **Check Internet Connection**
-    if not check_internet():
-        print("❌ Internet Disconnected! Exiting...")
-        exit(1)
-
-    # **Facebook Login Check**
-    session = check_facebook_login()  
-    if not session:
-        print("❌ Login Failed! Cookies might be expired.")
-        exit(1)
-
-    print("✅ Login Successful!")
-
-    # **Bot Loop**
-    while True:
-        try:
-            # **Fetch New Messages**
-            messages = bot.auto_reply.check_messages(session)
-            for msg in messages:
-                try:
-                    if isinstance(msg, tuple) and len(msg) == 2:
-                        user_id, message_text = msg
-                        print(f"📩 Message from {user_id}: {message_text}")
-
-                        # **Bot Replies**
-                        bot.auto_reply.send_reply(session, user_id, message_text)
-                        bot.meme_sender.send_meme(session, user_id)
-                        bot.name_detect.detect_name(session, user_id, message_text)
-                        bot.voice_reply.voice_response(session, user_id, message_text)
-
-                        check_memory_usage()
-                        time.sleep(3)  # Delay between responses
-                    else:
-                        print(f"⚠️ Unexpected message format: {msg}")
-                except Exception as e:
-                    print(f"⚠️ Error handling message: {e}")
-
-            # **Timeout Check**
-            if time.time() - start_time > timeout:
-                print("⏳ Timeout Reached! Exiting...")
-                break
-
-            time.sleep(5)  # **Main loop delay**
-
-        except Exception as e:
-            print(f"⚠️ Fatal Error: {e}")
-            time.sleep(10)  # **Retry after 10 seconds**
+    check_facebook_login()
