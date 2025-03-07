@@ -1,27 +1,39 @@
 import time
+import os
+import random
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 def get_facebook_session():
-    """Manually login detect karne ka function"""
-    options = webdriver.ChromeOptions()
-    options.add_argument("--user-data-dir=/tmp/chrome_data")  # Use existing session
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    """Open Chrome and wait for manual Facebook login."""
+    options = Options()
+    
+    # ✅ **Fix: Unique User Data Directory**
+    user_data_dir = f"/tmp/chrome_user_data_{random.randint(1000, 9999)}"
+    options.add_argument(f"--user-data-dir={user_data_dir}")
+
+    # ✅ **Prevent Bot Detection**
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("--disable-infobars")
+    options.add_argument("--start-maximized")
+
+    # ✅ **Run Headed Mode for Manual Login**
+    options.add_experimental_option("detach", True)
+
+    # ✅ **Initialize Chrome Driver**
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
 
     driver.get("https://www.facebook.com")
-    
-    for _ in range(30):  # 30 baar check karega (30 sec tak)
-        time.sleep(1)
-        if "home_icon" in driver.page_source:
-            print("✅ Login successful! Closing browser...")
-            cookies = driver.get_cookies()
-            driver.quit()
-            return cookies  # Cookies return karega
-        else:
-            print("⏳ Waiting for manual login...")
 
-    print("❌ Manual login failed! Exiting...")
-    driver.quit()
-    return None
+    print("⏳ Waiting for manual login...")
+    input("✔️ Press Enter after logging in to continue...")  
+
+    print("✅ Login detected! Continuing bot execution...")
+    return driver
+
+if __name__ == "__main__":
+    session = get_facebook_session()
