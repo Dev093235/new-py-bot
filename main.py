@@ -1,40 +1,72 @@
-import json
+import time
 import requests
+import psutil
+from bot.fb_login import check_facebook_login
+import bot.auto_reply
+import bot.meme_sender
+import bot.name_detect
+import bot.voice_reply
 
-def load_cookies(file_path="data/cookies.json"):
-    """Load cookies from JSON file."""
+def check_internet():
+    """Check if internet is working."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            cookies = json.load(f)
-        if not cookies:
-            raise Exception("Cookies file empty! Please add valid Facebook cookies.")
-        return cookies
-    except Exception as e:
-        print(f"❌ Error: Cookies load nahi ho rahi! ({e})")
-        return None
-
-def check_facebook_login():
-    """Check Facebook login using cookies."""
-    cookies = load_cookies()
-    if not cookies:
+        requests.get("https://www.google.com", timeout=5)
+        return True
+    except requests.ConnectionError:
         return False
 
-    session = requests.Session()
-    for cookie in cookies:
-        session.cookies.set(cookie["key"], cookie["value"], domain=cookie["domain"])
-
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
-    }
-
-    response = session.get("https://www.facebook.com", headers=headers, allow_redirects=True)
-
-    if "home_icon" in response.text or "profile.php" in response.url:
-        print("🎉 Successfully logged in to Facebook!")
-        return session
-    else:
-        print("❌ Login failed! Cookies expire ho sakti hain.")
-        return None
+def check_memory_usage():
+    """Check if bot is consuming too much memory."""
+    memory = psutil.virtual_memory()
+    print(f"💾 Memory Usage: {memory.percent}%")
+    if memory.percent > 80:
+        print("⚠️ Warning: High Memory Usage!")
 
 if __name__ == "__main__":
-    check_facebook_login()
+    print("🔥 Mohit Bot Starting...")
+
+    start_time = time.time()
+    timeout = 300  # 5 minutes timeout
+
+    while True:
+        try:
+            if time.time() - start_time > timeout:
+                print("⏳ Timeout Reached! Exiting...")
+                break
+
+            if not check_internet():
+                print("❌ Internet Disconnected! Retrying in 10 seconds...")
+                time.sleep(10)
+                continue
+
+            session = check_facebook_login()  # ✅ Now returning session
+            if not session:
+                print("❌ Login Failed! Check cookies.")
+                time.sleep(30)
+                continue
+            else:
+                print("✅ Login Successful!")
+
+            while True:
+                try:
+                    messages = [("Hello bot!", "Rahul"), ("Kya haal hai?", "Pooja")]
+
+                    bot.auto_reply.check_messages(session, messages)  # ✅ Pass session
+                    bot.meme_sender.send_meme(session)  # ✅ Pass session
+                    bot.name_detect.detect_name()
+                    bot.voice_reply.voice_response()
+
+                    check_memory_usage()
+                    time.sleep(5)
+
+                    if time.time() - start_time > timeout:
+                        print("⏳ Timeout Reached! Exiting Inner Loop...")
+                        break
+
+                except Exception as e:
+                    print(f"⚠️ Error in Bot Loop: {e}")
+                    time.sleep(5)
+
+        except Exception as e:
+            print(f"⚠️ Fatal Error: {e}")
+            time.sleep(10)
