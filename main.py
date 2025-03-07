@@ -1,7 +1,6 @@
 import time
 import requests
 import sys
-import webbrowser
 
 try:
     import psutil
@@ -36,11 +35,7 @@ if __name__ == "__main__":
     print("🔥 Mohit Bot Starting...")
 
     start_time = time.time()
-    timeout = 3600  # 1 Hour timeout
-
-    # 🔹 **Step 1: Open Facebook for Manual Login**
-    print("🌐 Opening Facebook... Please login manually.")
-    webbrowser.open("https://www.facebook.com")
+    timeout = 300  # 5 minutes timeout
 
     while True:
         try:
@@ -53,10 +48,11 @@ if __name__ == "__main__":
                 time.sleep(10)
                 continue
 
-            # 🔹 **Step 2: Get Active Facebook Session**
-            session = get_facebook_session()
+            print("🔄 Attempting Facebook login...")
+            session = get_facebook_session()  # ✅ Now returning session
+            
             if not session:
-                print("❌ Login Failed! Please login manually and try again.")
+                print("❌ Login Failed! Check cookies.")
                 time.sleep(30)
                 continue
             else:
@@ -64,6 +60,7 @@ if __name__ == "__main__":
 
             while True:
                 try:
+                    print("📩 Checking for new messages...")
                     messages = [("Hello bot!", "Rahul"), ("Kya haal hai?", "Pooja")]
 
                     bot.auto_reply.check_messages(session, messages)  # ✅ Pass session
