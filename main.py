@@ -1,6 +1,7 @@
 import time
 import requests
 import sys
+import webbrowser
 
 try:
     import psutil
@@ -10,7 +11,7 @@ except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
     import psutil
 
-from bot.fb_login import check_facebook_login
+from bot.fb_login import get_facebook_session
 import bot.auto_reply
 import bot.meme_sender
 import bot.name_detect
@@ -35,7 +36,11 @@ if __name__ == "__main__":
     print("🔥 Mohit Bot Starting...")
 
     start_time = time.time()
-    timeout = 300  # 5 minutes timeout
+    timeout = 3600  # 1 Hour timeout
+
+    # 🔹 **Step 1: Open Facebook for Manual Login**
+    print("🌐 Opening Facebook... Please login manually.")
+    webbrowser.open("https://www.facebook.com")
 
     while True:
         try:
@@ -48,9 +53,10 @@ if __name__ == "__main__":
                 time.sleep(10)
                 continue
 
-            session = check_facebook_login()  # ✅ Now returning session
+            # 🔹 **Step 2: Get Active Facebook Session**
+            session = get_facebook_session()
             if not session:
-                print("❌ Login Failed! Check cookies.")
+                print("❌ Login Failed! Please login manually and try again.")
                 time.sleep(30)
                 continue
             else:
