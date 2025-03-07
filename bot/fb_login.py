@@ -1,48 +1,27 @@
 import time
-import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 
-# ✅ **Manual Login Session Handler**
 def get_facebook_session():
-    """Manually login to Facebook and return session cookies."""
-    try:
-        # 🔹 **Step 1: Setup Chrome WebDriver**
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless")  # Headless mode (background)
-        options.add_argument("--disable-gpu")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
+    """Manually login detect karne ka function"""
+    options = webdriver.ChromeOptions()
+    options.add_argument("--user-data-dir=/tmp/chrome_data")  # Use existing session
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=options)
-
-        # 🔹 **Step 2: Open Facebook Login Page**
-        print("🌐 Opening Facebook for manual login...")
-        driver.get("https://www.facebook.com")
-        time.sleep(10)  # Wait for manual login
-
-        # 🔹 **Step 3: Wait Until Logged In**
-        while "home.php" not in driver.current_url:
+    driver.get("https://www.facebook.com")
+    
+    for _ in range(30):  # 30 baar check karega (30 sec tak)
+        time.sleep(1)
+        if "home_icon" in driver.page_source:
+            print("✅ Login successful! Closing browser...")
+            cookies = driver.get_cookies()
+            driver.quit()
+            return cookies  # Cookies return karega
+        else:
             print("⏳ Waiting for manual login...")
-            time.sleep(5)
 
-        print("✅ Facebook login detected! Extracting cookies...")
-
-        # 🔹 **Step 4: Extract Session Cookies**
-        cookies = driver.get_cookies()
-        session = requests.Session()
-
-        for cookie in cookies:
-            session.cookies.set(cookie["name"], cookie["value"], domain=cookie["domain"])
-
-        driver.quit()
-        print("🎉 Session established successfully!")
-        return session
-
-    except Exception as e:
-        print(f"❌ Error during login: {e}")
-        return None
+    print("❌ Manual login failed! Exiting...")
+    driver.quit()
+    return None
