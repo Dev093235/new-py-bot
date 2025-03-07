@@ -1,43 +1,57 @@
-import json
-import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+import pickle
+import time
 
-def load_cookies(file_path="data/cookies.json"):
-    """Load cookies from JSON file."""
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            cookies = json.load(f)
-
-        if not isinstance(cookies, dict):
-            raise ValueError("Invalid cookies format! Expected a dictionary.")
-
-        return cookies
-    except Exception as e:
-        print(f"❌ Error loading cookies: {e}")
-        return None
-
-def check_facebook_login():
-    """Check Facebook login using cookies."""
-    cookies = load_cookies()
-    if not cookies:
-        return None
-
-    session = requests.Session()
+def manual_facebook_login():
+    """Manually login to Facebook in Chrome, and save session."""
     
-    for key, value in cookies.items():
-        session.cookies.set(key, value, domain=".facebook.com")  # ✅ Domain fix
+    options = Options()
+    options.add_argument("--start-maximized")
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
-    }
+    driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=options)
+    driver.get("https://www.facebook.com/")
 
-    response = session.get("https://www.facebook.com", headers=headers, allow_redirects=True)
+    print("🔵 Please manually login to Facebook.")
+    input("✅ Press Enter after logging in...")
 
-    if "home_icon" in response.text or "profile.php" in response.url:
-        print("🎉 Successfully logged in to Facebook!")
-        return session
-    else:
-        print("❌ Login failed! Cookies expire ho sakti hain.")
-        return None
+    # Save session cookies
+    pickle.dump(driver.get_cookies(), open("data/session.pkl", "wb"))
+    print("✅ Session saved successfully!")
+
+    driver.quit()
+
+
+def load_facebook_session():
+    """Load saved Facebook session and continue bot operations."""
+    
+    options = Options()
+    options.add_argument("--start-maximized")
+
+    driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=options)
+    driver.get("https://www.facebook.com/")
+
+    # Load saved session
+    cookies = pickle.load(open("data/session.pkl", "rb"))
+    for cookie in cookies:
+        driver.add_cookie(cookie)
+
+    driver.refresh()
+    print("✅ Bot is now logged in and ready!")
+
+    return driver
+
 
 if __name__ == "__main__":
-    check_facebook_login()
+    choice = input("🔹 Type 'login' for manual login OR 'start' to load session: ").strip().lower()
+    
+    if choice == "login":
+        manual_facebook_login()
+    elif choice == "start":
+        driver = load_facebook_session()
+        time.sleep(10)  # Keep session open
+        driver.quit()
+    else:
+        print("❌ Invalid input! Please type 'login' or 'start'.")
