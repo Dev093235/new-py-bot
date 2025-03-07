@@ -5,26 +5,26 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 * * * *"  # Har 1 ghante me run hoga
+    - cron: "0 * * * *"  # Every hour
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          sudo apt update
-          sudo apt install -y chromium-chromedriver || true  # ⚠ Ignore error if already installed
-          which chromedriver || echo "Chromedriver not found!"
-      
-      - name: Run Bot
+          sudo apt update && sudo apt install -y chromium-browser
+
+      - name: Run the Bot
         run: python main.py
