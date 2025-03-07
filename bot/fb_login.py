@@ -4,7 +4,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 import time
 
-def login_facebook(email, password):
+def get_facebook_session():
     """Manually login to Facebook and let bot continue."""
     options = Options()
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -19,9 +19,7 @@ def login_facebook(email, password):
     input("🔵 Press Enter after completing the login manually...")
 
     print("✅ Login Successful! Bot is now running.")
-    return driver
+    return driver  # ✅ Return driver session
 
 if __name__ == "__main__":
-    EMAIL = "your-email@example.com"
-    PASSWORD = "your-password"
-    driver = login_facebook(EMAIL, PASSWORD)
+    session = get_facebook_session()
