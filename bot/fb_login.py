@@ -33,4 +33,16 @@ def get_facebook_session():
         print("✅ Facebook login detected! Extracting cookies...")
 
         # 🔹 **Step 4: Extract Session Cookies**
-       
+        cookies = driver.get_cookies()
+        session = requests.Session()
+
+        for cookie in cookies:
+            session.cookies.set(cookie["name"], cookie["value"], domain=cookie["domain"])
+
+        driver.quit()
+        print("🎉 Session established successfully!")
+        return session
+
+    except Exception as e:
+        print(f"❌ Error during login: {e}")
+        return None
