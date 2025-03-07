@@ -1,39 +1,27 @@
-import time
-import os
-import random
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
+import time
 
-def get_facebook_session():
-    """Open Chrome and wait for manual Facebook login."""
+def login_facebook(email, password):
+    """Manually login to Facebook and let bot continue."""
     options = Options()
-    
-    # ✅ **Fix: Unique User Data Directory**
-    user_data_dir = f"/tmp/chrome_user_data_{random.randint(1000, 9999)}"
-    options.add_argument(f"--user-data-dir={user_data_dir}")
-
-    # ✅ **Prevent Bot Detection**
     options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--disable-popup-blocking")
-    options.add_argument("--disable-infobars")
-    options.add_argument("--start-maximized")
+    options.add_argument("--user-data-dir=/tmp/chrome_profile")  # ✅ Unique path
 
-    # ✅ **Run Headed Mode for Manual Login**
-    options.add_experimental_option("detach", True)
-
-    # ✅ **Initialize Chrome Driver**
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
 
     driver.get("https://www.facebook.com")
+    time.sleep(10)  # 10 seconds wait for manual login
 
-    print("⏳ Waiting for manual login...")
-    input("✔️ Press Enter after logging in to continue...")  
+    input("🔵 Press Enter after completing the login manually...")
 
-    print("✅ Login detected! Continuing bot execution...")
+    print("✅ Login Successful! Bot is now running.")
     return driver
 
 if __name__ == "__main__":
-    session = get_facebook_session()
+    EMAIL = "your-email@example.com"
+    PASSWORD = "your-password"
+    driver = login_facebook(EMAIL, PASSWORD)
