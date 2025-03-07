@@ -48,11 +48,9 @@ if __name__ == "__main__":
                 time.sleep(10)
                 continue
 
-            print("🔄 Attempting Facebook login...")
-            session = get_facebook_session()  # ✅ Now returning session
-            
+            session = get_facebook_session()  # ✅ Manually Login to Facebook
             if not session:
-                print("❌ Login Failed! Check cookies.")
+                print("❌ Login Failed! Try Again.")
                 time.sleep(30)
                 continue
             else:
@@ -60,7 +58,6 @@ if __name__ == "__main__":
 
             while True:
                 try:
-                    print("📩 Checking for new messages...")
                     messages = [("Hello bot!", "Rahul"), ("Kya haal hai?", "Pooja")]
 
                     bot.auto_reply.check_messages(session, messages)  # ✅ Pass session
