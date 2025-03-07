@@ -1,6 +1,15 @@
 import time
 import requests
-import psutil
+import sys
+
+try:
+    import psutil
+except ImportError:
+    print("⚠️ 'psutil' module missing! Installing now...")
+    import subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
+    import psutil
+
 from bot.fb_login import check_facebook_login
 import bot.auto_reply
 import bot.meme_sender
