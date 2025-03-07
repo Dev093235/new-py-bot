@@ -1,25 +1,30 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 import time
 
 def get_facebook_session():
-    """Manually login to Facebook and let bot continue."""
-    options = Options()
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--user-data-dir=/tmp/chrome_profile")  # ✅ Unique path
-
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service, options=options)
-
+    """Start Chrome with a unique user data directory to prevent session conflicts."""
+    chrome_options = Options()
+    
+    # ✅ Important: Unique user-data-dir use karein
+    chrome_options.add_argument("--user-data-dir=/tmp/chrome_user_data")  
+    chrome_options.add_argument("--profile-directory=Default")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    
+    # ✅ Chrome Driver Initialize
+    service = Service("/usr/bin/chromedriver")  # ✅ ChromeDriver ka path ensure karein
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    
+    # ✅ Open Facebook Login Page
     driver.get("https://www.facebook.com")
-    time.sleep(10)  # 10 seconds wait for manual login
+    
+    print("⏳ Waiting for manual login...")
+    time.sleep(30)  # 30 seconds rukne do taaki aap manually login kar sakein
 
-    input("🔵 Press Enter after completing the login manually...")
-
-    print("✅ Login Successful! Bot is now running.")
-    return driver  # ✅ Return driver session
+    print("✅ Facebook session started!")
+    return driver
 
 if __name__ == "__main__":
-    session = get_facebook_session()
+    get_facebook_session()
