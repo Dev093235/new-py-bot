@@ -7,11 +7,10 @@ def load_cookies(file_path="data/cookies.json"):
         with open(file_path, "r", encoding="utf-8") as f:
             cookies = json.load(f)
 
-        if not cookies:
-            raise Exception("⚠️ Cookies file is empty! Please add valid Facebook cookies.")
+        if not isinstance(cookies, dict):
+            raise ValueError("Invalid cookies format! Expected a dictionary.")
 
-        return {cookie["key"]: cookie["value"] for cookie in cookies}  # ✅ Correct format
-
+        return cookies
     except Exception as e:
         print(f"❌ Error loading cookies: {e}")
         return None
@@ -23,7 +22,9 @@ def check_facebook_login():
         return None
 
     session = requests.Session()
-    session.cookies.update(cookies)  # ✅ Correct way to update session cookies
+    
+    for key, value in cookies.items():
+        session.cookies.set(key, value, domain=".facebook.com")  # ✅ Domain fix
 
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36"
@@ -33,7 +34,7 @@ def check_facebook_login():
 
     if "home_icon" in response.text or "profile.php" in response.url:
         print("🎉 Successfully logged in to Facebook!")
-        return session  # ✅ Returning the session for bot functions
+        return session
     else:
         print("❌ Login failed! Cookies expire ho sakti hain.")
         return None
