@@ -5,6 +5,7 @@ import time
 def get_facebook_session():
     """Firefox ke saath Facebook Manual Login Enable Karega"""
     options = Options()
+    options.binary_location = "/usr/bin/firefox"  # Ensure karo yeh correct ho
     options.add_argument("--headless")  # GUI nahi chahiye to enable karo
     options.add_argument("--disable-gpu")
 
