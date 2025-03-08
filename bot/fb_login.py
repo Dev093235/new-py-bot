@@ -4,7 +4,8 @@ import time
 import os
 
 def get_facebook_session():
-    """Manually Facebook login karne ke liye Chrome open karega."""
+    """Manual Facebook login ke liye Chrome launch karega."""
+
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -15,24 +16,22 @@ def get_facebook_session():
     chrome_options.add_argument("--disable-gpu")
 
     # 🛠 **Fix for 'user-data-dir' error**  
-    profile_path = f"/tmp/chrome_profile_{int(time.time())}"
-    if os.path.exists(profile_path):
-        os.system(f"rm -rf {profile_path}")  # ❌ Delete old profile to avoid conflicts
-
-    chrome_options.add_argument(f"--user-data-dir={profile_path}")  # Unique profile for every session
+    profile_path = f"/tmp/chrome_profile_{int(time.time())}"  # Unique path for every session
+    chrome_options.add_argument(f"--user-data-dir={profile_path}")
 
     try:
+        print("🚀 Launching Chrome for manual login...")
         driver = webdriver.Chrome(options=chrome_options)
         driver.get("https://www.facebook.com")
 
-        print("⏳ Waiting for manual login (30s)...")
-        time.sleep(30)  # **Wait for manual login**
+        print("⏳ Waiting for manual login (30 sec)...")
+        time.sleep(30)  # **Manual login ka wait**
 
         if "home" in driver.current_url:
-            print("✅ Facebook session started!")
+            print("✅ Facebook session started successfully!")
             return driver
         else:
-            print("❌ Login Failed! Please try again.")
+            print("❌ Login Failed! Try Again.")
             driver.quit()
             return None
     except Exception as e:
