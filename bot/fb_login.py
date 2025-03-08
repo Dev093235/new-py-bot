@@ -12,8 +12,15 @@ def get_facebook_session():
 
     # ✅ **Temporary Folder for Chrome Profile (Unique Every Time)**
     temp_dir = f"/tmp/chrome_fb_session_{random.randint(1000, 9999)}"
+    
+    # ✅ **Ensure Old Session is Removed**
     if os.path.exists(temp_dir):
-        shutil.rmtree(temp_dir)  # ✅ Purana session delete karo
+        try:
+            shutil.rmtree(temp_dir)  # Purana session delete
+        except Exception as e:
+            print(f"⚠️ Error deleting old session: {e}")
+
+    os.makedirs(temp_dir, exist_ok=True)  # ✅ Ensure directory exists
 
     chrome_options.add_argument(f"--user-data-dir={temp_dir}")  
     chrome_options.add_argument("--profile-directory=Default")
