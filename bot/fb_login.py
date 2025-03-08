@@ -7,19 +7,19 @@ def get_facebook_session():
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--remote-debugging-port=9222")  # Allow debugging
+    chrome_options.add_argument("--remote-debugging-port=9222")  # Debugging enable
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument("--disable-infobars")
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--disable-gpu")
 
     # 🛠 **Fix for 'user-data-dir' error**
-    chrome_options.add_argument("--user-data-dir=/tmp/chrome_profile")  # Unique profile
-    
+    chrome_options.add_argument(f"--user-data-dir=/tmp/chrome_profile_{int(time.time())}")  # Unique profile for every session
+
     driver = webdriver.Chrome(options=chrome_options)
     driver.get("https://www.facebook.com")
 
-    print("⏳ Waiting for manual login...")
+    print("⏳ Waiting for manual login (30s)...")
     time.sleep(30)  # **Wait for manual login**
     
     if "home" in driver.current_url:
