@@ -5,7 +5,7 @@ on:
 
 jobs:
   run-bot:
-    runs-on: ubuntu-latest  # Linux server pe run karega
+    runs-on: ubuntu-latest  # GitHub ka Linux server use karega
     
     steps:
       - name: 🛠️ Checkout Repository
