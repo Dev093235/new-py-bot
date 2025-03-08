@@ -14,11 +14,8 @@ def get_facebook_session():
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument("--disable-infobars")
 
-    # ✅ **Headless Mode HATAO**
-    # chrome_options.add_argument("--headless=new")  # ❌ Isko hata do!
-
-    # ✅ **Use Existing Chrome Profile**
-    profile_path = os.path.expanduser("~/.config/google-chrome/Default")
+    # ✅ **Unique Chrome Profile for Every Session**
+    profile_path = f"/tmp/chrome_profile_{int(time.time())}"
     chrome_options.add_argument(f"--user-data-dir={profile_path}")
 
     try:
@@ -26,14 +23,14 @@ def get_facebook_session():
         driver = webdriver.Chrome(options=chrome_options)
         driver.get("https://www.facebook.com")
 
-        print("⏳ Checking if already logged in...")
-        time.sleep(10)  # Wait for the page to load
+        print("⏳ Waiting for manual login (30 sec)...")
+        time.sleep(30)  # **Manual login ka wait**
 
         if "home" in driver.current_url:
-            print("✅ Facebook session detected! Bot is ready.")
+            print("✅ Facebook session started successfully!")
             return driver
         else:
-            print("❌ Login Failed! Please manually log in and try again.")
+            print("❌ Login Failed! Try Again.")
             driver.quit()
             return None
     except Exception as e:
