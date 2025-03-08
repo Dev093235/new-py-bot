@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
 import os
+import shutil
 
 def get_facebook_session():
     """Manual Facebook login ke liye Chrome launch karega."""
@@ -13,12 +14,11 @@ def get_facebook_session():
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument("--disable-infobars")
-    
-    # ✅ **Fix: Remove Remote Debugging Port**
-    # chrome_options.add_argument("--remote-debugging-port=9222")  # Remove this
 
-    # ✅ **Fix: Unique Chrome Profile Path**
-    profile_path = f"/tmp/chrome_profile_{int(time.time())}"
+    # ✅ **Fix: Unique Chrome Profile Path & Cleanup Old Sessions**
+    profile_path = "/tmp/chrome_profile"
+    if os.path.exists(profile_path):
+        shutil.rmtree(profile_path)  # ❌ Purani session files hata do
     chrome_options.add_argument(f"--user-data-dir={profile_path}")
 
     try:
