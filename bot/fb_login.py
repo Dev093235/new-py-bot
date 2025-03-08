@@ -13,8 +13,11 @@ def get_facebook_session():
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument("--disable-infobars")
+    
+    # ✅ **Fix: Remove Remote Debugging Port**
+    # chrome_options.add_argument("--remote-debugging-port=9222")  # Remove this
 
-    # ✅ **Unique Chrome Profile for Every Session**
+    # ✅ **Fix: Unique Chrome Profile Path**
     profile_path = f"/tmp/chrome_profile_{int(time.time())}"
     chrome_options.add_argument(f"--user-data-dir={profile_path}")
 
@@ -23,8 +26,8 @@ def get_facebook_session():
         driver = webdriver.Chrome(options=chrome_options)
         driver.get("https://www.facebook.com")
 
-        print("⏳ Waiting for manual login (30 sec)...")
-        time.sleep(30)  # **Manual login ka wait**
+        print("⏳ Waiting for manual login (40 sec)...")
+        time.sleep(40)  # **Manual login ka wait**
 
         if "home" in driver.current_url:
             print("✅ Facebook session started successfully!")
