@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
+import os
 
 def get_facebook_session():
     """Manually Facebook login karne ke liye Chrome open karega."""
@@ -13,8 +14,12 @@ def get_facebook_session():
     chrome_options.add_argument("--disable-notifications")
     chrome_options.add_argument("--disable-gpu")
 
-    # 🛠 **Fix for 'user-data-dir' error**
-    chrome_options.add_argument(f"--user-data-dir=/tmp/chrome_profile_{int(time.time())}")  # Unique profile for every session
+    # 🛠 **Fix for 'user-data-dir' error**  
+    profile_path = f"/tmp/chrome_profile_{int(time.time())}"
+    if os.path.exists(profile_path):
+        os.system(f"rm -rf {profile_path}")  # ❌ Delete old profile to avoid conflicts
+
+    chrome_options.add_argument(f"--user-data-dir={profile_path}")  # Unique profile for every session
 
     try:
         driver = webdriver.Chrome(options=chrome_options)
