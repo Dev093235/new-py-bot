@@ -14,26 +14,26 @@ def get_facebook_session():
     chrome_options.add_argument("--disable-blink-features=AutomationControlled")
     chrome_options.add_argument("--disable-infobars")
 
-    # 🛠 **Fix for 'user-data-dir' error**
-    profile_path = f"/tmp/chrome_profile_{int(time.time())}"  # Unique profile path
-    chrome_options.add_argument(f"--user-data-dir={profile_path}")
+    # ✅ **Headless Mode HATAO**
+    # chrome_options.add_argument("--headless=new")  # ❌ Isko hata do!
 
-    # ✅ **Use Headless Mode**
-    chrome_options.add_argument("--headless=new")  # **Headless mode for GitHub Actions**
+    # ✅ **Use Existing Chrome Profile**
+    profile_path = os.path.expanduser("~/.config/google-chrome/Default")
+    chrome_options.add_argument(f"--user-data-dir={profile_path}")
 
     try:
         print("🚀 Launching Chrome for manual login...")
         driver = webdriver.Chrome(options=chrome_options)
         driver.get("https://www.facebook.com")
 
-        print("⏳ Waiting for manual login (40 sec)...")
-        time.sleep(40)  # **Login karne ka time diya**
+        print("⏳ Checking if already logged in...")
+        time.sleep(10)  # Wait for the page to load
 
         if "home" in driver.current_url:
-            print("✅ Facebook session started successfully!")
+            print("✅ Facebook session detected! Bot is ready.")
             return driver
         else:
-            print("❌ Login Failed! Try Again.")
+            print("❌ Login Failed! Please manually log in and try again.")
             driver.quit()
             return None
     except Exception as e:
