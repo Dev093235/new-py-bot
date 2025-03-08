@@ -16,16 +16,20 @@ def get_facebook_session():
     # 🛠 **Fix for 'user-data-dir' error**
     chrome_options.add_argument(f"--user-data-dir=/tmp/chrome_profile_{int(time.time())}")  # Unique profile for every session
 
-    driver = webdriver.Chrome(options=chrome_options)
-    driver.get("https://www.facebook.com")
+    try:
+        driver = webdriver.Chrome(options=chrome_options)
+        driver.get("https://www.facebook.com")
 
-    print("⏳ Waiting for manual login (30s)...")
-    time.sleep(30)  # **Wait for manual login**
-    
-    if "home" in driver.current_url:
-        print("✅ Facebook session started!")
-        return driver
-    else:
-        print("❌ Login Failed! Please try again.")
-        driver.quit()
+        print("⏳ Waiting for manual login (30s)...")
+        time.sleep(30)  # **Wait for manual login**
+
+        if "home" in driver.current_url:
+            print("✅ Facebook session started!")
+            return driver
+        else:
+            print("❌ Login Failed! Please try again.")
+            driver.quit()
+            return None
+    except Exception as e:
+        print(f"⚠️ Error while launching Chrome: {e}")
         return None
